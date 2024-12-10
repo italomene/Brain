@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vis.js Graph with Links</title>
+    <title>BRAIN - IMP</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css">
     <style>
@@ -12,14 +12,24 @@
             margin: 0; /* Remove a margem padrão */
             padding: 0; /* Remove o padding */
         }
+        h1 {
+            text-align: left; /* Alinha o título no centro */
+            font-size: 36px; /* Tamanho do título */
+            color: #ffffff; /* Cor do título */
+            margin-top: 40px; /* Espaçamento superior */
+            margin-left: 40px;
+            font-family: sans-serif;
+            font-weight: bold;
+        }
         #network {
             width: 100%;
-            height: 100vh; /* Ocupa toda a altura da janela */
+            height: 85vh; /* Ocupa toda a altura da janela */
             border: none; /* Remove a borda */
         }
     </style>
 </head>
 <body>
+    <h1>BRAIN - IMP</h1> <!-- Título da página -->
     <div id="network"></div>
     <script>
         // JSON com os dados do grafo
@@ -28,19 +38,38 @@
             "edges": []
         };
 
+        // Função para gerar tons de roxo com base na profundidade
+        function getPurpleShade(depth) {
+            const baseColor = [99, 94, 242]; // RGB de #530082
+            const maxDepth = 12; // Profundidade máxima esperada
+            const lightenFactor = Math.min(depth / maxDepth, 1); // Fator de clareamento (0 a 1)
+
+            // Calcula a nova cor clareando o tom inicial
+            const newColor = baseColor.map(channel =>
+                Math.min(Math.round(channel + (255 - channel) * lightenFactor), 255)
+            );
+
+            return `rgb(${newColor.join(",")})`;
+        }
+
         // Adiciona os nós e suas arestas no formato do Vis.js
         function processGraphData(jsonData) {
             const nodesSet = new Set(); // Para evitar duplicação de nós
-            jsonData.children.forEach(child => traverseTree(child, jsonData.name));
+            jsonData.children.forEach(child => traverseTree(child, jsonData.name, 0)); // 0 é a profundidade inicial
 
-            function traverseTree(node, parent) {
+            function traverseTree(node, parent, depth) {
+                // Define o tamanho do nó com base na profundidade
+                const nodeSize = Math.max(60 - depth * 5, 5); // Tamanho começa em 50 e diminui 5 por nível
+
                 // Adiciona o nó atual
                 if (!nodesSet.has(node.name)) {
                     graphData.nodes.push({
                         id: node.name,
                         label: node.name,
                         title: `<a href="${node.link}" target="_blank">${node.link}</a>`,
-                        url: node.link // URL associada ao nó
+                        url: node.link, // URL associada ao nó
+                        size: nodeSize, // Define o tamanho do nó
+                        color: node.name === "BRAIN" ? "#C3BBFB" : getPurpleShade(depth) // Cor especial para o nó "BRAIN"
                     });
                     nodesSet.add(node.name);
                 }
@@ -55,239 +84,185 @@
 
                 // Processa os filhos do nó atual
                 if (node.children) {
-                    node.children.forEach(child => traverseTree(child, node.name));
+                    node.children.forEach(child => traverseTree(child, node.name, depth + 1)); // Aumenta a profundidade
                 }
             }
         }
 
         // Processa o JSON fornecido com a hierarquia
         processGraphData({
-            "name": "BRAIN",
+            "name": "BRAIN2",
             "link": "https://www.google.com",
             "children": [
                 {
-                "name": "Computação",
+                "name": "BRAIN",
                 "link": "https://www.google.com",
                 "children": [
                     {
-                    "name": "Linguagens de Programação",
+                    "name": "Computação",
                     "link": "https://www.google.com",
                     "children": [
                         {
-                        "name": "Python",
-                        "link": "https://excalidraw.com/#json=VonNdMNPGLEnUKy2ct_XO,AVgIrvoFV2jNHa1E4voOjw",
+                        "name": "Linguagens de Programação",
+                        "link": "https://www.google.com",
                         "children": [
                             {
-                            "name": "Manipulação e Processamento de Dados",
-                            "link": "https://www.google.com",
+                            "name": "Python",
+                            "link": "https://excalidraw.com/#json=VonNdMNPGLEnUKy2ct_XO,AVgIrvoFV2jNHa1E4voOjw",
                             "children": [
-                                { "name": "Pandas", "link": "https://www.google.com" },
-                                { "name": "NumPy", "link": "https://www.google.com" },
-                                { "name": "Polars", "link": "https://www.google.com" },
-                                { "name": "PySpark", "link": "https://www.google.com" },
-                                { "name": "PyArrow", "link": "https://www.google.com" },
-                                { "name": "SciPy", "link": "https://www.google.com" }
+                                {
+                                "name": "Manipulação e Processamento de Dados",
+                                "link": "https://www.google.com",
+                                "children": [
+                                    { "name": "Pandas", "link": "https://www.google.com" },
+                                    { "name": "NumPy", "link": "https://www.google.com" },
+                                    { "name": "Polars", "link": "https://www.google.com" },
+                                    { "name": "PySpark", "link": "https://www.google.com" },
+                                    { "name": "PyArrow", "link": "https://www.google.com" },
+                                    { "name": "SciPy", "link": "https://www.google.com" }
+                                ]
+                                },
+                                {
+                                "name": "Visualização de Dados",
+                                "link": "https://www.google.com",
+                                "children": [
+                                    { "name": "Matplotlib", "link": "https://www.google.com" },
+                                    { "name": "Seaborn", "link": "https://www.google.com" },
+                                    { "name": "Plotly", "link": "https://www.google.com" }
+                                ]
+                                },
+                                {
+                                "name": "Machine Learning e Deep Learning",
+                                "link": "https://www.google.com",
+                                "children": [
+                                    { "name": "Scikit-learn", "link": "https://www.google.com" },
+                                    { "name": "Keras", "link": "https://www.google.com" },
+                                    { "name": "TensorFlow", "link": "https://www.google.com" },
+                                    { "name": "TensorFlow Lite", "link": "https://www.google.com" },
+                                    { "name": "PyTorch", "link": "https://www.google.com" }
+                                ]
+                                },
+                                {
+                                "name": "Web Scraping",
+                                "link": "https://www.google.com",
+                                "children": [
+                                    { "name": "Beautiful Soup", "link": "https://www.google.com" },
+                                    { "name": "Requests", "link": "https://www.google.com" },
+                                    { "name": "Selenium", "link": "https://www.google.com" },
+                                    { "name": "Playwright", "link": "https://www.google.com" }
+                                ]
+                                },
+                                {
+                                "name": "Criação de Aplicações e Dashboards",
+                                "link": "https://www.google.com",
+                                "children": [
+                                    { "name": "Streamlit", "link": "https://www.google.com" }
+                                ]
+                                },
+                                {
+                                "name": "Processamento de Imagens e Computação Gráfica",
+                                "link": "https://www.google.com",
+                                "children": [
+                                    { "name": "OpenCV", "link": "https://www.google.com" }
+                                ]
+                                }
                             ]
                             },
                             {
-                            "name": "Visualização de Dados",
-                            "link": "https://www.google.com",
-                            "children": [
-                                { "name": "Matplotlib", "link": "https://www.google.com" },
-                                { "name": "Seaborn", "link": "https://www.google.com" },
-                                { "name": "Plotly", "link": "https://www.google.com" }
-                            ]
+                            "name": "SQL",
+                            "link": "https://excalidraw.com/#json=1VhNNnW4r_s8HWhvCObwV,m4LUgCTcnb-iNa3_xqkiXQ"
                             },
-                            {
-                            "name": "Machine Learning e Deep Learning",
-                            "link": "https://www.google.com",
-                            "children": [
-                                { "name": "Scikit-learn", "link": "https://www.google.com" },
-                                { "name": "Keras", "link": "https://www.google.com" },
-                                { "name": "TensorFlow", "link": "https://www.google.com" },
-                                { "name": "TensorFlow Lite", "link": "https://www.google.com" },
-                                { "name": "PyTorch", "link": "https://www.google.com" }
-                            ]
-                            },
-                            {
-                            "name": "Web Scraping",
-                            "link": "https://www.google.com",
-                            "children": [
-                                { "name": "Beautiful Soup", "link": "https://www.google.com" },
-                                { "name": "Requests", "link": "https://www.google.com" },
-                                { "name": "Selenium", "link": "https://www.google.com" },
-                                { "name": "Playwright", "link": "https://www.google.com" }
-                            ]
-                            },
-                            {
-                            "name": "Criação de Aplicações e Dashboards",
-                            "link": "https://www.google.com",
-                            "children": [
-                                { "name": "Streamlit", "link": "https://www.google.com" }
-                            ]
-                            },
-                            {
-                            "name": "Processamento de Imagens e Computação Gráfica",
-                            "link": "https://www.google.com",
-                            "children": [
-                                { "name": "OpenCV", "link": "https://www.google.com" }
-                            ]
-                            }
+                            { "name": "SAS", "link": "https://www.google.com" }
                         ]
                         },
                         {
-                        "name": "SQL",
-                        "link": "https://excalidraw.com/#json=1VhNNnW4r_s8HWhvCObwV,m4LUgCTcnb-iNa3_xqkiXQ"
+                        "name": "Estudos e Informações",
+                        "link": "https://www.google.com",
+                        "children": [
+                            {
+                            "name": "Machine Learning",
+                            "link": "https://www.google.com",
+                            "children": [
+                                { "name": "Modelos", "link": "https://www.google.com" },
+                                { "name": "Estudos e Artigos", "link": "https://www.google.com" }
+                            ]
+                            },
+                            {
+                            "name": "Programação Evolutiva",
+                            "link": "https://www.google.com",
+                            "children": [
+                                { "name": "Modelos ", "link": "https://www.google.com" },
+                                { "name": "Estudos e Artigos ", "link": "https://www.google.com" }
+                            ]
+                            },
+                            { "name": "Extras", "link": "https://www.google.com" }
+                        ]
                         },
-                        { "name": "SAS", "link": "https://www.google.com" }
+                        {
+                        "name": "Visualização de Dados ",
+                        "link": "https://www.google.com",
+                        "children": [
+                            { "name": "Excel", "link": "https://www.google.com" },
+                            { "name": "Power BI", "link": "https://www.google.com" }
+                        ]
+                        }
                     ]
                     },
                     {
-                    "name": "Estudos e Informações",
+                    "name": "Finanças",
                     "link": "https://www.google.com",
                     "children": [
                         {
-                        "name": "Machine Learning",
+                        "name": "Crédito",
                         "link": "https://www.google.com",
                         "children": [
-                            { "name": "Modelos", "link": "https://www.google.com" },
-                            { "name": "Estudos e Artigos", "link": "https://www.google.com" }
+                            { "name": "Fundamentos", "link": "https://excalidraw.com/#json=_qO7zh9cM-jan-JNSb-Ky,gATWlC_oNW8IFbjZgOZG0g" },
+                            { "name": "Métricas", "link": "https://excalidraw.com/#json=Py7CCFzSyowpsWIRxOKcS,e785f5YUTDqVE0WjxXrMIg" },
+                            { "name": "Modelagem", "link": "https://www.google.com" },
+                            { "name": "Análise de Sobrevivência", "link": "https://www.google.com" },
+                            { "name": "Avaliação de Garantias e Recuperação", "link": "https://www.google.com" },
+                            { "name": "Valoração e Precificação de Risco", "link": "https://www.google.com" },
+                            { "name": "Métodos Estatísticos e Machine Learning", "link": "https://www.google.com" },
+                            { "name": "Métodos de Gestão de Portfólio", "link": "https://www.google.com" },
+                            { "name": "Regulação e Normas", "link": "https://www.google.com" }
                         ]
-                        },
-                        {
-                        "name": "Programação Evolutiva",
-                        "link": "https://www.google.com",
-                        "children": [
-                            { "name": "Modelos ", "link": "https://www.google.com" },
-                            { "name": "Estudos e Artigos ", "link": "https://www.google.com" }
-                        ]
-                        },
-                        { "name": "Extras", "link": "https://www.google.com" }
-                    ]
-                    },
-                    {
-                    "name": "Visualização de Dados ",
-                    "link": "https://www.google.com",
-                    "children": [
-                        { "name": "Excel", "link": "https://www.google.com" },
-                        { "name": "Power BI", "link": "https://www.google.com" }
+                        }
                     ]
                     }
-                ]
-                },
-                {
-                "name": "Finanças",
-                "link": "https://www.google.com",
-                "children": [
-                    {
-                    "name": "Crédito",
-                    "link": "https://www.google.com",
-                    "children": [
-                        { "name": "Princípios", "link": "https://www.google.com" },
-                        { "name": "Análise de Crédito", "link": "https://www.google.com" },
-                        { "name": "Risco em Crédito", "link": "https://www.google.com" },
-                        { "name": "Modelos para Análise", "link": "https://www.google.com" },
-                        { "name": "Produtos e Cálculos", "link": "https://www.google.com" },
-                        { "name": "Fórmulas Importantes", "link": "https://www.google.com" },
-                        { "name": "Extras ", "link": "https://www.google.com" }
-                    ]
-                    }
-                ]
-                }
-            ],
-            "edges": [
-                { "source": "BRAIN", "target": "Computação" },
-                { "source": "BRAIN", "target": "Finanças" },
-                { "source": "Computação", "target": "Linguagens de Programação" },
-                { "source": "Linguagens de Programação", "target": "Python" },
-                { "source": "Linguagens de Programação", "target": "SQL" },
-                { "source": "Linguagens de Programação", "target": "SAS" },
-                { "source": "Python", "target": "Manipulação e Processamento de Dados" },
-                { "source": "Manipulação e Processamento de Dados", "target": "Pandas" },
-                { "source": "Manipulação e Processamento de Dados", "target": "NumPy" },
-                { "source": "Manipulação e Processamento de Dados", "target": "Polars" },
-                { "source": "Manipulação e Processamento de Dados", "target": "PySpark" },
-                { "source": "Manipulação e Processamento de Dados", "target": "PyArrow" },
-                { "source": "Manipulação e Processamento de Dados", "target": "SciPy" },
-                { "source": "Python", "target": "Criação de Aplicações e Dashboards" },
-                { "source": "Criação de Aplicações e Dashboards", "target": "Streamlit" },
-                { "source": "Python", "target": "Processamento de Imagens e Computação Gráfica" },
-                { "source": "Processamento de Imagens e Computação Gráfica", "target": "OpenCV" },
-                { "source": "Python", "target": "Visualização de Dados" },
-                { "source": "Visualização de Dados", "target": "Matplotlib" },
-                { "source": "Visualização de Dados", "target": "Seaborn" },
-                { "source": "Visualização de Dados", "target": "Plotly" },
-                { "source": "Python", "target": "Machine Learning e Deep Learning" },
-                { "source": "Machine Learning e Deep Learning", "target": "Scikit-learn" },
-                { "source": "Machine Learning e Deep Learning", "target": "Keras" },
-                { "source": "Machine Learning e Deep Learning", "target": "TensorFlow" },
-                { "source": "Machine Learning e Deep Learning", "target": "TensorFlow Lite" },
-                { "source": "Machine Learning e Deep Learning", "target": "PyTorch" },
-                { "source": "Python", "target": "Web Scraping" },
-                { "source": "Web Scraping", "target": "Beautiful Soup" },
-                { "source": "Web Scraping", "target": "Requests" },
-                { "source": "Web Scraping", "target": "Selenium" },
-                { "source": "Web Scraping", "target": "Playwright" },
-                { "source": "Computação", "target": "Estudos e Informações" },
-                { "source": "Estudos e Informações", "target": "Machine Learning" },
-                { "source": "Machine Learning", "target": "Modelos" },
-                { "source": "Machine Learning", "target": "Estudos e Artigos" },
-                { "source": "Estudos e Informações", "target": "Programação Evolutiva" },
-                { "source": "Programação Evolutiva", "target": "Modelos " },
-                { "source": "Programação Evolutiva", "target": "Estudos e Artigos " },
-                { "source": "Estudos e Informações", "target": "Extras" },
-                { "source": "Computação", "target": "Visualização de Dados " },
-                { "source": "Visualização de Dados ", "target": "Excel" },
-                { "source": "Visualização de Dados ", "target": "Power BI" },
-                { "source": "Finanças", "target": "Crédito" },
-                { "source": "Crédito", "target": "Princípios" },
-                { "source": "Crédito", "target": "Análise de Crédito" },
-                { "source": "Crédito", "target": "Risco em Crédito" },
-                { "source": "Crédito", "target": "Modelos para Análise" },
-                { "source": "Crédito", "target": "Produtos e Cálculos" },
-                { "source": "Crédito", "target": "Fórmulas Importantes" },
-                { "source": "Crédito", "target": "Extras " }
+                ]}
             ]
             });
 
         // Configurações da rede
         const options = {
-            layout: {
-                hierarchical: {
-                direction: 'UD',
-                sortMethod: 'hubsize',
-                nodeSpacing: 150,
-                levelSeparation: 200,
-                treeSpacing: 200,
+            edges: {
+                smooth: {
+                    forceDirection: "none",
+                },
+                color: {
+                    color: '#626973', // Cor padrão das arestas
+                    highlight: '#BFBFBF', // Cor ao passar o mouse
+                    hover: '#BFBFBF' 
                 }
             },
             physics: {
-                enabled: true,
-                solver: 'hierarchicalRepulsion',
-                hierarchicalRepulsion: {
-                nodeDistance: 120,
-                springLength: 150,
-                springConstant: 0.01,
-                }
+                barnesHut: {
+                    theta: 0.5,
+                    gravitationalConstant: -20000,
+                    centralGravity: 0.3,
+                    avoidOverlap: 0.2,
+                },
+                minVelocity: 0.75,
             },
             nodes: {
                 shape: 'dot',
                 size: 20,
                 font: {
-                size: 16,
-                color: '#343434'
+                    size: 14,
+                    color: '#ffffff', // Cor global padrão para os textos
                 },
             },
-            edges: {
-                smooth: {
-                type: 'cubicBezier',
-                forceDirection: 'vertical',
-                },
-                arrows: {
-                to: { enabled: false, scaleFactor: 1 }
-                }
-            }
-            };
+        }
 
         // Cria o contêiner do grafo
         const container = document.getElementById("network");
@@ -296,7 +271,7 @@
         const network = new vis.Network(container, graphData, options);
 
         // Adiciona evento de clique no nó para abrir o link
-        network.on("click", function (params) {
+        network.on("doubleClick", function (params) {
             if (params.nodes.length > 0) {
                 const nodeId = params.nodes[0]; // Obtém o ID do nó clicado
                 const node = graphData.nodes.find(n => n.id === nodeId);
@@ -308,3 +283,7 @@
     </script>
 </body>
 </html>
+
+
+
+
